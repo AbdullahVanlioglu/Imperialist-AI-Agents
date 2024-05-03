@@ -14,7 +14,7 @@ class ModelArgs():
     n_heads: int = 32 # Number of heads for the queries
     n_kv_heads : Optional[int] = None # Number of heads for the K and V
     vocab_size: int = -1 # This will be set when we load the tokenizer
-    multiple_of: int = 256
+    multiple_of: int = 256 # FeedForward multiple of parameter
     ffn_dim_multiplayer: Optional[int] = None
     norm_eps: float = 1e-5
 
@@ -82,6 +82,7 @@ def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
 class RMSNorm(nn.Module):
 
     def __init__(self, dim: int, eps: float = 1e-6):
+        super().__init__()
         self.eps = eps 
         # The gamma parameter
         self.weight = nn.Parameter(torch.ones(dim))
@@ -94,6 +95,7 @@ class RMSNorm(nn.Module):
     def forward(self, x: torch.Tensor):
         # (Dim) * (B, Seq_Len, Dim) = (B, Seq_Len, Dim)
         return self.weight * self._norm(x.float()).type_as(x)
+
 
 class SelfAttention(nn.Module):
 
@@ -177,7 +179,7 @@ class FeedForward(nn.Module):
         if args.ffn_dim_multiplayer is not None:
             hidden_dim = int(args.ffn_dim_multiplayer * hidden_dim)
         # Round the hidden_dim to the nearest multiple of the multiple_of parameter
-        hidden = args.multiple_of((hidden + args.multiple_of - 1) // args.multiple_of)
+        hidden_dim = args.multiple_of * ((hidden_dim + args.multiple_of - 1) // args.multiple_of)
 
         self.w1 = nn.Linear(args.dim, hidden_dim, bias=False)
         self.w2 = nn.Linear(hidden_dim, args.dim, bias=False)
@@ -189,7 +191,6 @@ class FeedForward(nn.Module):
         x = swish * x_V
         x = self.w2(x)
         return x 
-
 
 
 class EncoderBlock(nn.Module):
@@ -217,8 +218,6 @@ class EncoderBlock(nn.Module):
         return out
 
 
-
-
 class Transformer(nn.Module):
 
     def __init__(self, args: ModelArgs) -> None:
@@ -238,7 +237,7 @@ class Transformer(nn.Module):
         self.norm = RMSNorm(args.dim, eps = args.norm_eps)
         self.output = nn.Linear(args.dim, self.vocab_size, bias = False)
         self.freqs_complex = precompute_theta_pos_frequencies(self.args.dim // self.args.n_heads, self.args.max_seq_len * 2,
-                                                              device = self.args.devices)
+                                                              device = self.args.device)
         
     def forward(self, tokens: torch.Tensor, start_pos: int):
         # (B, Seq_len)

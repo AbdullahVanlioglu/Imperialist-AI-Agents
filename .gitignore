@@ -1,0 +1,7 @@
+checkpoint/
+tokenizer/
+
+.vscode
+*.DS_Store
+*.pyc
+*.egg-info
