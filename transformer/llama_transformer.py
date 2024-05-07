@@ -46,7 +46,7 @@ def precompute_theta_pos_frequencies(head_dim: int, seq_len: int, device: str, t
     return freqs_complex
 
 
-def apply_rotary_embeddings(x: torch.Tensor, freqs_complex: torch.Tensor, device: str):
+def apply_rotary_embeddings(x: torch.tensor, freqs_complex: torch.tensor, device: str):
     # Separate the last dimension pairs of two values, representing the real and imaginary parts of the complex number
     # Two consecutive values will become a single complex number
     # (B, Seq_Len, H, Head_Dim) -> (B, Seq_Len, H, Head_Dim/2)
@@ -66,7 +66,7 @@ def apply_rotary_embeddings(x: torch.Tensor, freqs_complex: torch.Tensor, device
     return x_out.type_as(x).to(device)
 
 
-def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
+def repeat_kv(x: torch.tensor, n_rep: int) -> torch.tensor:
     batch_size, seq_len, n_kv_heads, head_dim = x.shape
     if n_rep == 1:
         return x
@@ -87,12 +87,12 @@ class RMSNorm(nn.Module):
         # The gamma parameter
         self.weight = nn.Parameter(torch.ones(dim))
 
-    def _norm(self, x: torch.Tensor):
+    def _norm(self, x: torch.tensor):
         # (B, Seq_len, dim) * (B, Seq_len, 1) = (B, Seq_Len, Dim)
         # rsqrt: 1 / sqrt(x)
         return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.tensor):
         # (Dim) * (B, Seq_Len, Dim) = (B, Seq_Len, Dim)
         return self.weight * self._norm(x.float()).type_as(x)
 
@@ -119,7 +119,7 @@ class SelfAttention(nn.Module):
         self.cache_k = torch.zeros((args.max_batch_size, args.max_seq_len, self.n_kv_heads, self.head_dim))
         self.cache_v = torch.zeros((args.max_batch_size, args.max_seq_len, self.n_kv_heads, self.head_dim))
 
-    def forward(self, x: torch.Tensor, start_pos: int, freqs_complex: torch.Tensor):
+    def forward(self, x: torch.tensor, start_pos: int, freqs_complex: torch.tensor):
         batch_size, seq_len, _  = x.shape # (B, 1, Dim)
 
         # Apply the Wq, Wk and Wv matrices to queries, key and values
@@ -165,7 +165,7 @@ class SelfAttention(nn.Module):
         output = torch.matmul(scores, values)
 
         # (B, H_Q, 1, Head_Dim) -> (B, 1, H_Q, Head_Dim) -> (B, 1, Dim)
-        output = (output.transpose(1, 2).contigouous().view(batch_size, seq_len, -1))
+        output = (output.transpose(1, 2).contiguous().view(batch_size, seq_len, -1))
         return self.wo(output) # (B, 1, Dim) -> (B, 1, Dim)
 
 
@@ -185,7 +185,7 @@ class FeedForward(nn.Module):
         self.w2 = nn.Linear(hidden_dim, args.dim, bias=False)
         self.w3 = nn.Linear(args.dim, hidden_dim, bias=False)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.tensor):
         swish = F.silu(self.w1(x))
         x_V = self.w3(x)
         x = swish * x_V
@@ -210,7 +210,7 @@ class EncoderBlock(nn.Module):
         # Normalization before the feed forward network
         self.ffn_norm = RMSNorm(args.dim, eps = args.norm_eps)
     
-    def forward(self, x: torch.Tensor, start_pos: int, freqs_complex: torch.Tensor):
+    def forward(self, x: torch.tensor, start_pos: int, freqs_complex: torch.tensor):
         # (B, Seq_len, Dim) + (B, Seq_len, Dim) -> (B, Seq_len, Dim)
         h = x + self.attention.forward(self.attention_norm(x), start_pos, freqs_complex)
         out = h + self.feed_forward(self.ffn_norm(h))
@@ -239,7 +239,7 @@ class Transformer(nn.Module):
         self.freqs_complex = precompute_theta_pos_frequencies(self.args.dim // self.args.n_heads, self.args.max_seq_len * 2,
                                                               device = self.args.device)
         
-    def forward(self, tokens: torch.Tensor, start_pos: int):
+    def forward(self, tokens: torch.tensor, start_pos: int):
         # (B, Seq_len)
         batch_size, seq_len = tokens.shape
         assert seq_len == 1, "Only one token at a time can be processed"
