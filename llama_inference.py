@@ -3,7 +3,7 @@ import time
 import json
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from sentencepiece import SentencePieceProcessor
 from tqdm import tqdm
 
@@ -52,14 +52,14 @@ class LLaMA:
 
         return LLaMA(model, tokenizer, model_args)
 
-    def texxt_completion(self, prompts: List[str], temperature: float = 0.6, top_p: float = 0.9, max_gen_len: Optional[int] = None):
+    def text_completion(self, prompts: List[str], temperature: float = 0.6, top_p: float = 0.9, max_gen_len: Optional[int] = None):
         if max_gen_len is None:
             max_gen_len = self.args.max_seq_len - 1
         # Convert each prompt into tokens
         prompt_tokens = [self.tokenizer.encode(prompt, out_type=int, add_bos=True, add_eos=False) for prompt in prompts]
         # Make sure the batch size is not too large
         batch_size = len(prompt_tokens)
-        assert batch_size <= self.args.max_batch_size
+        assert batch_size <= self.args.max_batch_size, f"batch size must be less than or equal to {self.args.max_batch_size}"
         max_prompt_len = max(len(prompt) for prompt in prompt_tokens)
         # Make sure the prompt lenght is not larger than the maximum seq lenght
         assert max_prompt_len <= self.args.max_seq_len
@@ -106,6 +106,16 @@ class LLaMA:
                 out_text.append(self.tokenizer.decode(current_prompt_tokens))
             return (out_tokens, out_text)
 
+    def _sample_top_p(self, probs, p):
+        # []
+        probs_sort, prob_idx = torch.sort(probs, dim = -1, descending = True)
+        probs_sum = torch.cumsum(probs_sort, dim=-1)
+        mask = probs_sum - probs_sort > p
+        probs_sum[mask] = 0.0
+        probs_sort.div_(probs_sort.sum(dim=-1, keepdim=True)) # Redistribute probabilities among surviving probs.
+        next_token = torch.multinomial(probs_sort, num_samples=1)
+        next_token = torch.gather(prob_idx, -1, next_token)
+        return next_token
 
 
 
@@ -114,6 +124,18 @@ if __name__ == '__main__':
 
     allow_cuda = False
     device = 'cuda' if torch.cuda.is_available() and allow_cuda else 'cpu'
+
+    prompts = [
+        "Simply put, the theory of relativity states that ",
+        "If Google was an Italian company founded in Milan, it would",
+        # Few shot promt
+        """Translate English to French:
+        
+        sea otter => loutre de mer
+        peppermint => menthe poivrée
+        plush girafe => girafe peluche
+        cheese =>"""
+    ]
 
     model = LLaMA.build(
         checkpoints_dir='checkpoint/llama-2-7b/',
@@ -125,3 +147,8 @@ if __name__ == '__main__':
     )
 
     # Inference the model
+    out_tokens, out_text = (model.text_completion(prompts, max_gen_len=64))
+    assert len(out_text) == len(prompts)
+    for i in range(len(out_text)):
+        print(f'{out_text[i]}')
+        print('-'*50)
