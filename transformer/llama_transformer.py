@@ -127,7 +127,7 @@ class SelfAttention(nn.Module):
         xq = self.wq(x)
         # (B, 1, Dİm) -> (B, 1, H_KV * Head_Dim)
         xk = self.wk(x)
-        wv = self.wv(x)
+        xv = self.wv(x)
 
         # (B, 1, H_Q * Head_Dim) -> (B, 1, H_Q, Head_Dim)
         xq = xq.view(batch_size, seq_len, self.n_heads_q, self.head_dim)
