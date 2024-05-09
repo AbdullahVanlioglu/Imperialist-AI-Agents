@@ -130,14 +130,12 @@ class SelfAttention(nn.Module):
         xq = self.wq(x)
         # (B, 1, Dim) -> (B, 1, H_KV * Head_Dim)
         xk = self.wk(x)
-        # (B, 1, Dim) -> (B, 1, H_KV * Head_Dim)
         xv = self.wv(x)
 
         # (B, 1, H_Q * Head_Dim) -> (B, 1, H_Q, Head_Dim)
         xq = xq.view(batch_size, seq_len, self.n_heads_q, self.head_dim)
         # (B, 1, H_KV * Head_Dim) -> (B, 1, H_KV, Head_Dim)
         xk = xk.view(batch_size, seq_len, self.n_kv_heads, self.head_dim)
-        # (B, 1, H_KV * Head_Dim) -> (B, 1, H_KV, Head_Dim)
         xv = xv.view(batch_size, seq_len, self.n_kv_heads, self.head_dim)
 
         # (B, 1, H_Q, Head_Dim) --> (B, 1, H_Q, Head_Dim)
@@ -151,21 +149,18 @@ class SelfAttention(nn.Module):
 
         # (B, Seq_Len_KV, H_KV, Head_Dim)
         keys = self.cache_k[:batch_size, : start_pos + seq_len]
-        # (B, Seq_Len_KV, H_KV, Head_Dim)
         values = self.cache_v[:batch_size, : start_pos + seq_len]
 
         # Since every group of Q shares the same K and V heads, just repeat the K and V heads for every Q in the same group.
 
         # (B, Seq_Len_KV, H_KV, Head_Dim) --> (B, Seq_Len_KV, H_Q, Head_Dim)
         keys = repeat_kv(keys, self.n_rep)
-        # (B, Seq_Len_KV, H_KV, Head_Dim) --> (B, Seq_Len_KV, H_Q, Head_Dim)
         values = repeat_kv(values, self.n_rep)
 
         # (B, 1, H_Q, Head_Dim) -> (B, H_Q, 1, Head_Dim)
         xq = xq.transpose(1, 2)
         # (B, Seq_Len_KV, H_Q, Head_Dim) -> (B, H_Q, Seq_Len_KV, Head_Dim)
         keys = keys.transpose(1, 2)
-        # (B, Seq_Len_KV, H_Q, Head_Dim) -> (B, H_Q, Seq_Len_KV, Head_Dim)
         values = values.transpose(1, 2)
 
         # (B, H_Q, 1, Head_Dim) @ (B, H_Q, Head_Dim, Seq_Len_KV) -> (B, H_Q, 1, Seq_Len_KV)

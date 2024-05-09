@@ -24,9 +24,9 @@ class LLaMA:
             checkpoints = sorted(Path(checkpoints_dir).glob("*.pth"))
             assert len(checkpoints) > 0, f"no checkpoint files found in {checkpoints_dir}"
             ckpt_path = checkpoints[0]
-            print(f'Loading checkpoint "{ckpt_path}"')
+            logging.info(f'Loading checkpoint "{ckpt_path}"')
             checkpoint = torch.load(ckpt_path, map_location="cpu")
-            print(f"Loaded checkpoint in {time.time() - prev_time:.2f}s")
+            logging.info(f"Loaded checkpoint in {time.time() - prev_time:.2f}s")
             prev_time = time.time()
         with open(Path(checkpoints_dir) / "params.json", "r") as f:
             params = json.loads(f.read())
@@ -73,8 +73,9 @@ class LLaMA:
         # Create the list that will contain the generated tokens, along with the initial prompt tokens
         pad_id = self.tokenizer.pad_id()
         tokens = torch.full((batch_size, total_len), pad_id, dtype=torch.long, device=device)
+
         for k, t in enumerate(prompt_tokens):
-            # Populate the initial tokens with the prompt tokens
+            # Fill the initial tokens with the prompt tokens
             tokens[k, : len(t)] = torch.tensor(t, dtype=torch.long, device=device)
         
         eos_reached = torch.tensor([False] * batch_size, device=device)
@@ -99,7 +100,7 @@ class LLaMA:
             eos_reached |= (~prompt_tokens_mask[:, cur_pos]) & (next_token == self.tokenizer.eos_id)
             if all(eos_reached):
                 break
-
+        breakpoint()
         out_tokens = []
         out_text = []
         for prompt_index, current_prompt_tokens in enumerate(tokens.tolist()):
