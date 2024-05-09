@@ -20,36 +20,40 @@ class LLaMA:
     def build(checkpoints_dir: str, tokenizer_path: str, load_model: bool, max_seq_len: int, max_batch_size: int, device: str):
         prev_time = time.time()
         if load_model:
-            checkpoints = sorted(Path(checkpoints_dir).glob('*.pth'))
-            
-            assert len(checkpoints) > 0, "No checkpoints files found"
-            chk_path = checkpoints[0]
-            print(f"Loading checkpoint {chk_path}")
-            checkpoint = torch.load(chk_path, map_location="cpu")
+            checkpoints = sorted(Path(checkpoints_dir).glob("*.pth"))
+            assert len(checkpoints) > 0, f"no checkpoint files found in {checkpoints_dir}"
+            ckpt_path = checkpoints[0]
+            print(f'Loading checkpoint "{ckpt_path}"')
+            checkpoint = torch.load(ckpt_path, map_location="cpu")
             print(f"Loaded checkpoint in {time.time() - prev_time:.2f}s")
             prev_time = time.time()
-
         with open(Path(checkpoints_dir) / "params.json", "r") as f:
             params = json.loads(f.read())
-        
-        model_args: ModelArgs = ModelArgs(max_seq_len=max_seq_len, max_batch_size=max_batch_size, device=device, **params)
+
+        model_args: ModelArgs = ModelArgs(
+            max_seq_len=max_seq_len,
+            max_batch_size=max_batch_size,
+            device=device,
+            **params
+        )
 
         tokenizer = SentencePieceProcessor()
         tokenizer.load(tokenizer_path)
         model_args.vocab_size = tokenizer.vocab_size()
-
+        
         if device == "cuda":
-            torch.set_default_dtype(torch.cuda.HalfTensor)
+            torch.set_default_tensor_type(torch.cuda.HalfTensor)
         else:
             torch.set_default_tensor_type(torch.BFloat16Tensor)
-
+        
         model = Transformer(model_args).to(device)
 
         if load_model:
-            del checkpoint["rope.freqs"]
+            # The only unmatched key in the checkpoint is rope.freqs. Remove it
+            del checkpoint['rope.freqs']
             model.load_state_dict(checkpoint, strict=True)
             print(f"Loaded state dict in {time.time() - prev_time:.2f}s")
-
+        
         return LLaMA(model, tokenizer, model_args)
 
     def text_completion(self, prompts: List[str], temperature: float = 0.6, top_p: float = 0.9, max_gen_len: Optional[int] = None):
@@ -61,8 +65,8 @@ class LLaMA:
         batch_size = len(prompt_tokens)
         assert batch_size <= self.args.max_batch_size, f"batch size must be less than or equal to {self.args.max_batch_size}"
         max_prompt_len = max(len(prompt) for prompt in prompt_tokens)
-        # Make sure the prompt lenght is not larger than the maximum seq lenght
-        assert max_prompt_len <= self.args.max_seq_len
+        # Make sure the prompt length is not larger than the maximum sequence length
+        assert max_prompt_len <= self.args.max_seq_len, f"prompt length must be less than or equal to {self.args.max_seq_len}"
         total_len = min(self.args.max_seq_len, max_gen_len + max_prompt_len)
 
         # Create the list that will contain the generated tokens, along with the initial prompt tokens
@@ -70,8 +74,8 @@ class LLaMA:
         tokens = torch.full((batch_size, total_len), pad_id, dtype=torch.long, device=device)
         for k, t in enumerate(prompt_tokens):
             # Populate the initial tokens with the prompt tokens
-            tokens[k, :len(t)] = torch.tensor(t, dtype=torch.long, device=device)
-
+            tokens[k, : len(t)] = torch.tensor(t, dtype=torch.long, device=device)
+        
         eos_reached = torch.tensor([False] * batch_size, device=device)
         prompt_tokens_mask = tokens != pad_id # True if the token is a prompt token, False otherwise
         cur_iterator = tqdm(range(1, total_len), desc="Generating tokens")
@@ -105,16 +109,23 @@ class LLaMA:
             out_tokens.append(current_prompt_tokens)
             out_text.append(self.tokenizer.decode(current_prompt_tokens))
         return (out_tokens, out_text)
-
+    
     def _sample_top_p(self, probs, p):
-        # []
-        probs_sort, prob_idx = torch.sort(probs, dim = -1, descending = True)
+        # (B, vocab_size)
+        probs_sort, probs_idx = torch.sort(probs, dim=-1, descending=True)
+        # (B, vocab_size)
         probs_sum = torch.cumsum(probs_sort, dim=-1)
-        mask = probs_sum - probs_sort > p
-        probs_sum[mask] = 0.0
-        probs_sort.div_(probs_sort.sum(dim=-1, keepdim=True)) # Redistribute probabilities among surviving probs.
+        # (B, vocab_size)
+        # (Substracting "probs_sort" shifts the cumulative sum by 1 position to the right before masking)
+        mask = probs_sum - probs_sort > p 
+        # Zero out all the probabilities of tokens that are not selected by the Top P
+        probs_sort[mask] = 0.0 
+        # Redistribute the probabilities so that they sum up to 1.
+        probs_sort.div_(probs_sort.sum(dim=-1, keepdim=True))
+        # Sample a token (its index) from the top p distribution
         next_token = torch.multinomial(probs_sort, num_samples=1)
-        next_token = torch.gather(prob_idx, -1, next_token)
+        # Get the token position in the vocabulary corresponding to the sampled index
+        next_token = torch.gather(probs_idx, -1, next_token) 
         return next_token
 
 
@@ -134,7 +145,8 @@ if __name__ == '__main__':
         sea otter => loutre de mer
         peppermint => menthe poivrée
         plush girafe => girafe peluche
-        cheese =>"""
+        cheese =>
+        """
     ]
 
     model = LLaMA.build(
@@ -142,13 +154,12 @@ if __name__ == '__main__':
         tokenizer_path='tokenizer/llama_tokenizer.model',
         load_model=True,
         max_seq_len=1024,
-        max_batch_size=3,
+        max_batch_size=len(prompts),
         device=device
     )
 
-    # Inference the model
-    out_tokens, out_text = (model.text_completion(prompts, max_gen_len=64))
-    assert len(out_text) == len(prompts)
-    for i in range(len(out_text)):
-        print(f'{out_text[i]}')
-        print('-'*50)
+    out_tokens, out_texts = (model.text_completion(prompts, max_gen_len=64))
+    assert len(out_texts) == len(prompts)
+    for i in range(len(out_texts)):
+        print(f'{out_texts[i]}')
+        print('-' * 50)
