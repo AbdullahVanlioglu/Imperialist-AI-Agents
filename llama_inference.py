@@ -76,7 +76,7 @@ class LLaMA:
 
         for k, t in enumerate(prompt_tokens):
             # Fill the initial tokens with the prompt tokens
-            tokens[k, : len(t)] = torch.tensor(t, dtype=torch.long, device=device)
+            tokens[k, :len(t)] = torch.tensor(t, dtype=torch.long, device=device)
         
         eos_reached = torch.tensor([False] * batch_size, device=device)
         prompt_tokens_mask = tokens != pad_id # True if the token is a prompt token, False otherwise
@@ -100,7 +100,7 @@ class LLaMA:
             eos_reached |= (~prompt_tokens_mask[:, cur_pos]) & (next_token == self.tokenizer.eos_id)
             if all(eos_reached):
                 break
-        breakpoint()
+        
         out_tokens = []
         out_text = []
         for prompt_index, current_prompt_tokens in enumerate(tokens.tolist()):
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     prompts = [
         "Simply put, the theory of relativity states that ",
         "If Google was an Italian company founded in Milan, it would",
-        # Few shot promt
+
         """Translate English to French:
         
         sea otter => loutre de mer
