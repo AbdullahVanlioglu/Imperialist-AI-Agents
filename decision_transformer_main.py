@@ -6,16 +6,32 @@ import argparse
 import pickle
 import logging
 
+from dataclasses import dataclass
+from config import decision_config
+from typing import Optional, List
+
+
+@dataclass
+class ModelArgs:
+    hopper_max_ep_len: int = 1000,
+    hopper_env_targets: List = [3600, 1800],
+    hopper_scale: float = 1000.
+
+    halfcheetah_max_ep_len:int = 1000,
+    halfcheetah_env_targets: List = [12000, 6000],
+    halfcheetah_scale:float = 1000.
+
+
 
 def experiment(
         exp,
-        variant,
+        config,
 ):
-    device = variant.get('device', 'cuda')
-    log_to_wandb = variant.get('log_to_wandb', False)
+    device = config.get('device', 'cuda')
+    log_to_wandb = config.get('log_to_wandb', False)
 
-    env_name, dataset = variant['env'], variant['dataset']
-    model_type = variant['model_type']
+    env_name, dataset = config['env'], config['dataset']
+    model_type = config['model_type']
     group_name = f'{exp}-{env_name}-{dataset}'
     exp = f'{group_name}-{random.randint(int(1e5), int(1e6) - 1)}'
 
@@ -50,12 +66,12 @@ def experiment(
     act_dim = env.action_space.shape[0]
 
     # load dataset
-    dataset_path = f'datasets/{env_name}-{dataset}-v2.pkl'
+    dataset_path = f'datasets/gym/{env_name}-{dataset}-v2.pkl'
     with open(dataset_path, 'rb') as f:
         trajectories = pickle.load(f)
 
     # save all path information into separate lists
-    mode = variant.get('mode', 'normal')
+    mode = config.get('mode', 'normal')
     states, traj_lens, returns = [], [], []
     for path in trajectories:
         if mode == 'delayed':  # delayed: all rewards moved to end of trajectory
@@ -66,18 +82,26 @@ def experiment(
         returns.append(path['rewards'].sum())
     traj_lens, returns = np.array(traj_lens), np.array(returns)
 
-    # used for input normalization
+    # Used for input normalization
     states = np.concatenate(states, axis=0)
     state_mean, state_std = np.mean(states, axis=0), np.std(states, axis=0) + 1e-6
 
     num_timesteps = sum(traj_lens)
 
-    logging.info('=' * 50)
+    logging.info('-' * 50)
     logging.info(f'Starting new experiment: {env_name} {dataset}')
     logging.info(f'{len(traj_lens)} trajectories, {num_timesteps} timesteps found')
     logging.info(f'Average return: {np.mean(returns):.2f}, std: {np.std(returns):.2f}')
     logging.info(f'Max return: {np.max(returns):.2f}, min: {np.min(returns):.2f}')
-    logging.info('=' * 50)
+    logging.info('-' * 50)
+
+    K = config['K']
+    batch_size = config['batch_size']
+    num_eval_episodes = config['num_eval_episodes']
+    pct_traj = config.get('pct_traj', 1.)
+    
+
+
 
     
     
@@ -93,28 +117,6 @@ def experiment(
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--env', type=str, default='hopper')
-    parser.add_argument('--dataset', type=str, default='medium')  # medium, medium-replay, medium-expert, expert
-    parser.add_argument('--mode', type=str, default='normal')  # normal for standard setting, delayed for sparse
-    parser.add_argument('--K', type=int, default=20)
-    parser.add_argument('--pct_traj', type=float, default=1.)
-    parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--model_type', type=str, default='dt')  # dt for decision transformer, bc for behavior cloning
-    parser.add_argument('--embed_dim', type=int, default=128)
-    parser.add_argument('--n_layer', type=int, default=3)
-    parser.add_argument('--n_head', type=int, default=1)
-    parser.add_argument('--activation_function', type=str, default='relu')
-    parser.add_argument('--dropout', type=float, default=0.1)
-    parser.add_argument('--learning_rate', '-lr', type=float, default=1e-4)
-    parser.add_argument('--weight_decay', '-wd', type=float, default=1e-4)
-    parser.add_argument('--warmup_steps', type=int, default=10000)
-    parser.add_argument('--num_eval_episodes', type=int, default=100)
-    parser.add_argument('--max_iters', type=int, default=10)
-    parser.add_argument('--num_steps_per_iter', type=int, default=10000)
-    parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--log_to_wandb', '-w', type=bool, default=False)
-    
-    args = parser.parse_args()
+    config = decision_config
 
-    experiment('gym-experiment', variant=vars(args))
+    experiment('gym-experiment', config = config)
