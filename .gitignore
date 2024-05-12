@@ -5,3 +5,4 @@ tokenizer/
 *.DS_Store
 *.pyc
 *.egg-info
+*.pkl
