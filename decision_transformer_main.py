@@ -179,6 +179,7 @@ def experiment(
         exp,
         config,
 ):
+
     device = config.get('device', 'cuda')
     log_to_wandb = config.get('log_to_wandb', False)
 

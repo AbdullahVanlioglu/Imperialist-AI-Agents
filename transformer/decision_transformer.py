@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 import transformers
-from model import TrajectoryModel
+from transformer.base_model import TrajectoryModel
 from transformer.trajectory_gpt2 import GPT2Model
 
 class DecisionTransformer(TrajectoryModel):
@@ -13,7 +13,7 @@ class DecisionTransformer(TrajectoryModel):
 
     def __init__(self, state_dim: int, act_dim: int, hidden_size: int, max_lenght = None, 
                   max_ep_len: int = 4096, action_tanh: bool = True, **kwargs):
-        super().__init__(state_dim: int, act_dim: int, max_length: int = max_lenght)
+        super().__init__(state_dim, act_dim, max_length=max_lenght)
 
         self.hidden_size = hidden_size
         config = transformers.GPT2Config(vocab_size=1,  # doesn't matter -- we don't use the vocab
@@ -64,4 +64,28 @@ class DecisionTransformer(TrajectoryModel):
         ).permute(0, 2, 1, 3).reshape(batch_size, 3*seq_length, self.hidden_size)
         stacked_inputs = self.embed_ln(stacked_inputs)
 
+        # to make the attention mask fit the stacked inputs, have to stack it as well
+        stacked_attention_mask = torch.stack(
+            (attention_mask, attention_mask, attention_mask), dim=1
+        ).permute(0, 2, 1).reshape(batch_size, 3*seq_length)
+
+        # to make the attention mask fit the stacked inputs, have to stack it as well
+        stacked_attention_mask = torch.stack(
+            (attention_mask, attention_mask, attention_mask), dim=1
+        ).permute(0, 2, 1).reshape(batch_size, 3*seq_length)
+
+        # we feed in the input embeddings (not word indices as in NLP) to the model
+        transformer_outputs = self.transformer(
+            inputs_embeds=stacked_inputs,
+            attention_mask=stacked_attention_mask,
+        )
+        x = transformer_outputs['last_hidden_state']
+
+        # reshape x so that the second dimension corresponds to the original
+        # returns (0), states (1), or actions (2); i.e. x[:,1,t] is the token for s_t
+        x = x.reshape(batch_size, seq_length, 3, self.hidden_size).permute(0, 2, 1, 3)
+
+        
+
+        
 
