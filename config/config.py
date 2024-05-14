@@ -22,6 +22,5 @@ decision_config = dict(
     log_to_wandb = '-w',
     device = 'cuda',
 
-
 )
 

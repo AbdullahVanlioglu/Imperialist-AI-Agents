@@ -7,7 +7,7 @@ import pickle
 import logging
 
 from dataclasses import dataclass
-from config import decision_config
+from config.config import decision_config
 from typing import Optional, List
 
 from transformer.decision_transformer import DecisionTransformer
@@ -316,7 +316,7 @@ def experiment(
 
         return s, a, r, d, rtg, timesteps, mask
     
-     def eval_episodes(target_rew):
+    def eval_episodes(target_rew):
         def fn(model):
             returns, lengths = [], []
             for _ in range(num_eval_episodes):
@@ -397,6 +397,8 @@ def experiment(
         optimizer,
         lambda steps: min((steps+1)/warmup_steps, 1)
     )
+
+
 
     
     
