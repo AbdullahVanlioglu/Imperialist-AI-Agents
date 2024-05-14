@@ -1,5 +1,5 @@
 import torch
 import torch.nn as nn
 
-class MLBehaviorClonning(nn.Module):
+class MLPBCModel(nn.Module):
     pass
