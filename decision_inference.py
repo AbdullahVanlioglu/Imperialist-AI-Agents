@@ -5,6 +5,7 @@ import random
 import argparse
 import pickle
 import logging
+import wandb
 
 from dataclasses import dataclass
 from config.config import decision_config
@@ -12,6 +13,7 @@ from typing import Optional, List
 
 from transformer.decision_transformer import DecisionTransformer
 from transformer.behavior_clonning import MLBehaviorClonning
+from train.trainer import ActTrainer, SequenceTrainer
 
 
 @dataclass
@@ -26,6 +28,8 @@ class ModelArgs:
 
 import numpy as np
 import torch
+
+
 
 
 def evaluate_episode(
@@ -175,10 +179,7 @@ def discount_cumsum(x, gamma):
 
 
 
-def experiment(
-        exp,
-        config,
-):
+def experiment(exp, config):
 
     device = config.get('device', 'cuda')
     log_to_wandb = config.get('log_to_wandb', False)
@@ -396,8 +397,43 @@ def experiment(
 
     scheduler = torch.optim.lr_scheduler.LambdaLR(
         optimizer,
-        lambda steps: min((steps+1)/warmup_steps, 1)
-    )
+        lambda steps: min((steps+1)/warmup_steps, 1))
+    
+    if model_type == 'dt':
+        trainer = SequenceTrainer(
+            model=model,
+            optimizer=optimizer,
+            batch_size=batch_size,
+            get_batch=get_batch,
+            scheduler=scheduler,
+            loss_fn=lambda s_hat, a_hat, r_hat, s, a, r: torch.mean((a_hat - a)**2),
+            eval_fns=[eval_episodes(tar) for tar in env_targets])
+    elif model_type == 'bc':
+        trainer = ActTrainer(
+            model=model,
+            optimizer=optimizer,
+            batch_size=batch_size,
+            get_batch=get_batch,
+            scheduler=scheduler,
+            loss_fn=lambda s_hat, a_hat, r_hat, s, a, r: torch.mean((a_hat - a)**2),
+            eval_fns=[eval_episodes(tar) for tar in env_targets])
+        
+    if log_to_wandb:
+        wandb.init(
+            name=exp,
+            group=group_name,
+            project='decision-transformer',
+            config=config
+        )
+        # wandb.watch(model)  # wandb has some bug
+
+    for iter in range(config['max_iters']):
+        outputs = trainer.train_iteration(num_steps=config['num_steps_per_iter'], iter_num=iter+1, print_logs=True)
+        if log_to_wandb:
+            wandb.log(outputs)
+    
+    
+
 
 
 
