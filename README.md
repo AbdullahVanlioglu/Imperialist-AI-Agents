@@ -11,7 +11,9 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 ## Todo
 
 - [x] LLAMA v2
+- [ ] Behavior Clonning
 - [ ] Decision Transformer
 - [ ] Q-Transformer
-- [ ] RLHF
+- [ ] RLHF (PPO & DPO)
 - [ ] Jax version of the algorithms
+- [ ] And Final Goal: Imperialist AI Agent

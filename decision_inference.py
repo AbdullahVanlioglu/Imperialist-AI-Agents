@@ -2,7 +2,6 @@ import gym
 import numpy as np
 import torch
 import random
-import argparse
 import pickle
 import logging
 import wandb
@@ -25,10 +24,6 @@ class ModelArgs:
     halfcheetah_max_ep_len:int = 1000,
     halfcheetah_env_targets: List = [12000, 6000],
     halfcheetah_scale:float = 1000.
-
-import numpy as np
-import torch
-
 
 
 
@@ -425,7 +420,6 @@ def experiment(exp, config):
             project='decision-transformer',
             config=config
         )
-        # wandb.watch(model)  # wandb has some bug
 
     for iter in range(config['max_iters']):
         outputs = trainer.train_iteration(num_steps=config['num_steps_per_iter'], iter_num=iter+1, print_logs=True)
