@@ -1,5 +1,6 @@
 checkpoint/
 tokenizer/
+wandb/
 
 .vscode
 *.DS_Store
