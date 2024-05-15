@@ -12,8 +12,7 @@ from typing import Optional, List
 
 from transformer.decision_transformer import DecisionTransformer
 from transformer.behavior_clonning import MLBehaviorClonning
-from train.trainer import ActTrainer, SequenceTrainer
-
+from train.trainer import SequenceTrainer
 
 @dataclass
 class ModelArgs:
@@ -426,17 +425,6 @@ def experiment(exp, config):
         if log_to_wandb:
             wandb.log(outputs)
     
-    
-
-
-
-
-    
-    
-
-
-
-
 
 
 
