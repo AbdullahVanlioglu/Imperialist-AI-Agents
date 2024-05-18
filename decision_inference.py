@@ -12,7 +12,7 @@ from typing import Optional, List
 
 from transformer.decision_transformer import DecisionTransformer
 from transformer.behavior_clonning import MLBehaviorClonning
-from train.trainer import SequenceTrainer
+from train.trainer import SequenceTrainer, ActTrainer
 
 @dataclass
 class ModelArgs:
@@ -269,8 +269,7 @@ def experiment(exp, config):
             np.arange(num_trajectories),
             size=batch_size,
             replace=True,
-            p=p_sample,  # reweights so we sample according to timesteps
-        )
+            p=p_sample)  # reweights so we sample according to timesteps
 
         s, a, r, d, rtg, timesteps, mask = [], [], [], [], [], [], []
         for i in range(batch_size):

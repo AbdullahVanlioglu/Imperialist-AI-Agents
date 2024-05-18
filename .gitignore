@@ -1,9 +1,10 @@
 checkpoint/
 tokenizer/
-wandb/
+wandb
 
 .vscode
 *.DS_Store
 *.pyc
 *.egg-info
 *.pkl
+*.log
