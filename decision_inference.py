@@ -14,17 +14,6 @@ from transformer.decision_transformer import DecisionTransformer
 from transformer.behavior_clonning import MLBehaviorClonning
 from train.trainer import SequenceTrainer, ActTrainer
 
-@dataclass
-class ModelArgs:
-    hopper_max_ep_len: int = 1000,
-    hopper_env_targets: List = [3600, 1800],
-    hopper_scale: float = 1000.
-
-    halfcheetah_max_ep_len:int = 1000,
-    halfcheetah_env_targets: List = [12000, 6000],
-    halfcheetah_scale:float = 1000.
-
-
 
 def evaluate_episode(
         env,
@@ -288,7 +277,7 @@ def experiment(exp, config):
             batch_timestep[-1][batch_timestep[-1] >= max_ep_len] = max_ep_len-1  # padding cutoff
             batch_rtg.append(discount_cumsum(traj['rewards'][si:], gamma=1.)[:batch_state[-1].shape[1] + 1].reshape(1, -1, 1))
             if batch_rtg[-1].shape[1] <= batch_state[-1].shape[1]:
-                batch_rtg[-1] = np.concatenate([rtg[-1], np.zeros((1, 1, 1))], axis=1)
+                batch_rtg[-1] = np.concatenate([batch_rtg[-1], np.zeros((1, 1, 1))], axis=1)
     
             # padding and state + reward normalization
             tlen = batch_state[-1].shape[1]

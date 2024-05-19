@@ -89,7 +89,7 @@ class DecisionTransformer(TrajectoryModel):
         return_preds = self.predict_return(x[:,2])  # predict next return given state and action
         state_preds = self.predict_state(x[:,2])    # predict next state given state and action
         action_preds = self.predict_action(x[:,1])  # predict next action given state
-
+        breakpoint()
         return state_preds, action_preds, return_preds
     
     def get_action(self, states, actions, rewards, return_to_go, timesteps, **kwargs):
