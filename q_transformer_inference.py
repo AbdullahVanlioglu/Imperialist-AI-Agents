@@ -83,7 +83,7 @@ def run(config: Dict[str, str]):
         args = args
         )
 
-
+    
 
 if __name__ == '__main__':
     config = q_transformer_config

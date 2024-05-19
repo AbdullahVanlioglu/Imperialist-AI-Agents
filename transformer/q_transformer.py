@@ -8,15 +8,12 @@ from typing import Union, Dict, Any, Tuple, Optional
 
 @dataclass
 class ModelArgs:
-    dim: int = 4096
+    embed_dim: int = 512
     n_layers: int = 8
     n_heads: int = 32 # Number of heads for the queries
+    max_seq_lenght: int = 120 # Number of sequence lenght
+    window_size: int = 5 # Number of window 
     n_kv_heads: Optional[int] = None # Number of heads for the K and V
-    vocab_size: int = -1 # This will be set during to load the tokenizer
-    multiple_of: int = 256 # FeedForward multiple of parameter
-    ffn_dim_multiplier: Optional[float] = None
-    norm_eps: float = 1e-5
-
     device: str = None
 
 class AttentionBlock(nn.Module):
@@ -24,11 +21,10 @@ class AttentionBlock(nn.Module):
         super().__init__()
         self.args = args
 
+
         
         
     
-
-
 class QTransformer(nn.Module):
     def __init__(self,
                  state_dim: int,
@@ -42,16 +38,21 @@ class QTransformer(nn.Module):
         self.max_ep_len = max_ep_len
         self.args = args
 
+        self.tok_embeddings = torch.nn.Linear(self.state_dim, self.args.embed_dim)
+        self.time_embeddigns = torch.nn.Linear(self.max_seq_lenght, self.args.embed_dim)
+
         self.transformer = nn.Module()
         for layer_id in range(self.args.n_layers):
-            self.layers.append(AttentionBlock(self.args))
+            self.transformer.append(AttentionBlock(self.args))
 
-    def forward(self, state: torch.Tensor, action: torch.Tensor):
-
+    def forward(self, state: torch.Tensor, action: torch.Tensor, timestep: int):
+        # (B, Seq_Len, State_Dim)
         batch_size, seq_lenght = state.shape[0], state.shape[1]
 
+        # (B, Seq_Len, State_Dim) -> (B, Seq_Len, State_Dim, Embed_Dim)
+        state_emb = self.tok_embeddings(state)
+        time_emb = self.time_embeddigns(timestep)
+
+        state_embeddings = state_emb + time_emb
+
         
-
-
-    
-

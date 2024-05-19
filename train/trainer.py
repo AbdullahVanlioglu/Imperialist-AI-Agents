@@ -1,6 +1,7 @@
 import torch
 import time
 import torch.nn as nn
+import numpy as np
 
 class Trainer:
     def __init__(self, model, optimizer, batch_size, get_batch, loss_fn, scheduler=None, eval_fns=None):
