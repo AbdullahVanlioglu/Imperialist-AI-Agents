@@ -21,6 +21,12 @@ decision_config = dict(
     num_steps_per_iter = 10000,
     log_to_wandb = '-w',
     device = 'cuda',
+)
 
+q_transformer_config = dict(
+    env = 'hopper',
+    dataset = 'medium', # medium, medium-replay, medium-expert, expert
+    mode = 'delayed', # normal for standard setting, delayed for sparse
+    device = 'cuda',
 )
 
