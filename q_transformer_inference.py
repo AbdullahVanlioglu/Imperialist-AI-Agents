@@ -7,32 +7,36 @@ import gym
 from typing import Dict, List
 
 from config.config import q_transformer_config
+from train.trainer import QTrainer
 from transformer.q_transformer import QTransformer, ModelArgs
-from env.mocks import MockEnvironment
+
 
 def run(config: Dict[str, str]):
 
-    log = logging.getLogger("Q-Transformer")
-
-    env_name = config['env']
-    dataset = config['dataset']
-    mode = config['mode']
-    pct_traj = config['pct_traj']
-
     args = ModelArgs()
+    num_actions = args["num_actions"]
+    action_bins = args["action_bins"]
+    depth = args["depth"]
+    heads = args["heads"]
+    dim_head = args["dim_head"]
+    cond_drop_prob = args["cond_drop_prob"]
+    
 
-    env = MockEnvironment(
-    state_shape = (3, 6, 224, 224),
-    text_embed_shape = (768,))
+    # Inputs
+    video = torch.randn(2, 3, 6, 224, 224)
+    instructions = [
+        'bring me that apple sitting on the table',
+        'please pass the butter']
+
 
 
     model = QTransformer(
-        num_actions = 8,
-        action_bins = 256,
-        depth = 1,
-        heads = 8,
-        dim_head = 64,
-        cond_drop_prob = 0.2,
+        num_actions = num_actions,
+        action_bins = action_bins,
+        depth = depth,
+        heads = heads,
+        dim_head = dim_head,
+        cond_drop_prob = cond_drop_prob,
         dueling = True)
 
     

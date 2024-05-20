@@ -8,12 +8,19 @@ from typing import Union, Dict, Any, Tuple, Optional
 
 @dataclass
 class ModelArgs:
+    num_actions: int = 8
+    action_bins: int = 256
+    depth: int = 1
+    heads:int = 5
+    dim_head:int = 64
+    cond_drop_prob:float = 0.2
+
     embed_dim: int = 512
     n_layers: int = 8
     n_heads: int = 32 # Number of heads for the queries
     max_seq_lenght: int = 120 # Number of sequence lenght
     batch_size: int = 256
-    window_size: int = 5 # Number of window 
+    window_size: int = 7 # Number of window 
     n_kv_heads: Optional[int] = None # Number of heads for the K and V
     device: str = None
 

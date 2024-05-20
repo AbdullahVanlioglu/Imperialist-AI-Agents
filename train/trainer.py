@@ -127,3 +127,4 @@ class ActTrainer(Trainer):
         self.optimizer.step()
 
         return loss.detach().cpu().item()
+    
