@@ -11,9 +11,12 @@ from transformer.q_transformer import QTransformer, ModelArgs
 
 def run(config: Dict[str, str]):
 
+    log = logging.getLogger("Q-Transformer")
+
     env_name = config['env']
     dataset = config['dataset']
     mode = config['mode']
+    pct_traj = config['pct_traj']
 
     if env_name == 'hopper':
         env = gym.make('Hopper-v3')
@@ -46,7 +49,6 @@ def run(config: Dict[str, str]):
 
     args = ModelArgs()
 
-
     # load dataset
     dataset_path = f'datasets/gym/{env_name}-{dataset}-v2.pkl'
     with open(dataset_path, 'rb') as f:
@@ -66,15 +68,31 @@ def run(config: Dict[str, str]):
     # Used for input normalization
     states = np.concatenate(states, axis=0)
     state_mean, state_std = np.mean(states, axis=0), np.std(states, axis=0) + 1e-6
-
+    
     num_timesteps = sum(traj_lengths)
 
-    logging.info('-' * 50)
-    logging.info(f'Starting new experiment: {env_name} {dataset}')
-    logging.info(f'{len(traj_lengths)} trajectories, {num_timesteps} timesteps found')
-    logging.info(f'Average return: {np.mean(returns):.2f}, std: {np.std(returns):.2f}')
-    logging.info(f'Max return: {np.max(returns):.2f}, min: {np.min(returns):.2f}')
-    logging.info('-' * 50)
+    logging.warning(f'Starting new experiment: {env_name} {dataset}')
+    logging.warning(f'{len(traj_lengths)} trajectories, {num_timesteps} timesteps found')
+    logging.warning(f'Average return: {np.mean(returns):.2f}, std: {np.std(returns):.2f}')
+    logging.warning(f'Max return: {np.max(returns):.2f}, min: {np.min(returns):.2f}')
+
+    num_timesteps = max(int(pct_traj*num_timesteps), 1)
+    sorted_inds = np.argsort(returns)  # lowest to highest
+    num_trajectories = 1
+    timesteps = traj_lengths[sorted_inds[-1]]
+    ind = len(trajectories) - 2
+
+    while ind >= 0 and timesteps + traj_lengths[sorted_inds[ind]] <= num_timesteps:
+        timesteps += traj_lengths[sorted_inds[ind]]
+        num_trajectories += 1
+        ind -= 1
+    sorted_inds = sorted_inds[-num_trajectories:]
+
+    def get_batch(batch_size=256, max_len=K):
+        batch_state, batch_action, batch_reward, batch_done, batch_rtg, batch_timestep, batch_mask = [], [], [], [], [], [], []
+
+        for i in range(batch_size):
+            pass
 
     model = QTransformer(
         state_dim = state_dim, 

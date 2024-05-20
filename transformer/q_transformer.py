@@ -12,6 +12,7 @@ class ModelArgs:
     n_layers: int = 8
     n_heads: int = 32 # Number of heads for the queries
     max_seq_lenght: int = 120 # Number of sequence lenght
+    batch_size: int = 256
     window_size: int = 5 # Number of window 
     n_kv_heads: Optional[int] = None # Number of heads for the K and V
     device: str = None
@@ -22,8 +23,6 @@ class AttentionBlock(nn.Module):
         self.args = args
 
 
-        
-        
     
 class QTransformer(nn.Module):
     def __init__(self,
@@ -39,7 +38,7 @@ class QTransformer(nn.Module):
         self.args = args
 
         self.tok_embeddings = torch.nn.Linear(self.state_dim, self.args.embed_dim)
-        self.time_embeddigns = torch.nn.Linear(self.max_seq_lenght, self.args.embed_dim)
+        self.time_embeddigns = torch.nn.Linear(self.args.max_seq_lenght, self.args.embed_dim)
 
         self.transformer = nn.Module()
         for layer_id in range(self.args.n_layers):

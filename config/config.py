@@ -27,6 +27,7 @@ q_transformer_config = dict(
     env = 'hopper',
     dataset = 'medium', # medium, medium-replay, medium-expert, expert
     mode = 'delayed', # normal for standard setting, delayed for sparse
+    pct_traj = 1.,
     device = 'cuda',
 )
 

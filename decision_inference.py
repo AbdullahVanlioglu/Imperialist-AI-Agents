@@ -415,7 +415,6 @@ def experiment(exp, config):
     
 
 
-
 if __name__ == '__main__':
     config = decision_config
     experiment('gym-experiment', config = config)
