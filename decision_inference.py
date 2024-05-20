@@ -225,12 +225,10 @@ def experiment(exp, config):
 
     num_timesteps = sum(traj_lengths)
 
-    logging.info('-' * 50)
-    logging.info(f'Starting new experiment: {env_name} {dataset}')
-    logging.info(f'{len(traj_lens)} trajectories, {num_timesteps} timesteps found')
-    logging.info(f'Average return: {np.mean(returns):.2f}, std: {np.std(returns):.2f}')
-    logging.info(f'Max return: {np.max(returns):.2f}, min: {np.min(returns):.2f}')
-    logging.info('-' * 50)
+    logging.warning(f'Starting new experiment: {env_name} {dataset}')
+    logging.warning(f'{len(traj_lens)} trajectories, {num_timesteps} timesteps found')
+    logging.warning(f'Average return: {np.mean(returns):.2f}, std: {np.std(returns):.2f}')
+    logging.warning(f'Max return: {np.max(returns):.2f}, min: {np.min(returns):.2f}')
 
     K = config['K']
     batch_size = config['batch_size']
