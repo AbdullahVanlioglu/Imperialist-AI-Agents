@@ -5,6 +5,7 @@ import torch.nn.functional as F
 
 from dataclasses import dataclass
 from typing import Union, Dict, Any, Tuple, Optional
+from transformer.maxvit import MaxViT
 
 @dataclass
 class ModelArgs:
@@ -31,12 +32,13 @@ class AttentionBlock(nn.Module):
 
 
     
-class QTransformer(nn.Module):
+class Transformer(nn.Module):
     def __init__(self,
+                 vit: MaxViT,
+                 args: ModelArgs,
                  state_dim: int,
                  act_dim: int,
-                 max_ep_len: int,
-                 args: ModelArgs
+                 max_ep_len: int
                  ):
     
         self.state_dim = state_dim
