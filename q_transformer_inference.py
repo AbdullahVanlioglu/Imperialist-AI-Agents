@@ -7,8 +7,8 @@ import gym
 from typing import Dict, List
 
 from config.config import q_transformer_config
-from train.trainer import QTrainer
 from transformer.q_transformer import QTransformer, ModelArgs
+from transformer.maxvit import MaxViT
 
 
 def run(config: Dict[str, str]):
@@ -21,16 +21,17 @@ def run(config: Dict[str, str]):
     dim_head = args["dim_head"]
     cond_drop_prob = args["cond_drop_prob"]
     
-
     # Inputs
-    video = torch.randn(2, 3, 6, 224, 224)
-    instructions = [
-        'bring me that apple sitting on the table',
-        'please pass the butter']
+    img = torch.randn(1, 3, 256, 256)
+    text = torch.randint(0, 20000, (1, 1024))
 
+    vision_transformer = MaxViT.max_vit_base_224(in_channels=4)
+    output = vision_transformer(img)
 
+    breakpoint()
 
     model = QTransformer(
+        vit = vision_transformer,
         num_actions = num_actions,
         action_bins = action_bins,
         depth = depth,
@@ -39,7 +40,6 @@ def run(config: Dict[str, str]):
         cond_drop_prob = cond_drop_prob,
         dueling = True)
 
-    
 
 if __name__ == '__main__':
     config = q_transformer_config
