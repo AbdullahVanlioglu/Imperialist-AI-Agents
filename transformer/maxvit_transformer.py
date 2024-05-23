@@ -125,6 +125,7 @@ def window_partition(
     # Get size of input
     B, C, H, W = input.shape
     # Unfold input
+    breakpoint
     windows = input.view(B, C, H // window_size[0], window_size[0], W // window_size[1], window_size[1])
     # Permute and reshape to [B * windows, window_size[0], window_size[1], channels]
     windows = windows.permute(0, 2, 4, 3, 5, 1).contiguous().view(-1, window_size[0], window_size[1], C)

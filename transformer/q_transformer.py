@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 from dataclasses import dataclass
 from typing import Union, Dict, Any, Tuple, Optional
-from transformer.maxvit import MaxViT
+from transformer.maxvit_transformer import MaxViT
 
 @dataclass
 class ModelArgs:
