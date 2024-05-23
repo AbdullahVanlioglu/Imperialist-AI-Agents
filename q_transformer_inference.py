@@ -24,6 +24,7 @@ class QTransformer:
     def build(config: Dict, args: ModelArgs):
         vision_transformer = MaxViT.max_vit_base_224(in_channels=4)
         model = Transformer
+        
 
         return QTransformer(model = model,
                             vit = vision_transformer,
