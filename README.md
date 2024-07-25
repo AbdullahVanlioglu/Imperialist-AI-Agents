@@ -14,7 +14,8 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 - [x] Behavior Clonning
 - [x] Decision Transformer
 - [ ] Q-Transformer
+- [ ] Mamba
 - [ ] RT-2 [Optional]
-- [ ] RLHF (PPO & DPO) [Optional]
+- [ ] RLHF (PPO & DPO)
 - [ ] Jax version of the algorithms [Optional]
 - [ ] And Final Goal: Imperialist AI Agent
