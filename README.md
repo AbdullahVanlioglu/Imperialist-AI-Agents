@@ -13,7 +13,7 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | Transformers |  <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img> | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> |
 |:-----:|:---------:|:---------:|
 |  LLaMa v2  |:x:|:heavy_check_mark:|
-|  Behavior Clonning  |:heavy_check_mark:|:heavy_check_mark:|
+|  Behavior Clonning  |:x:|:heavy_check_mark:|
 |  Decision Transformer  |:x:|:heavy_check_mark:|
 |  Q-Transformer  |:x:|:x:|
 |  Mamba  |:x:|:x:|
@@ -25,16 +25,16 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 
 ### **Components**
 
-| Components |  |  <img src="https://raw.githubusercontent.com/numpy/numpy/main/branding/logo/logomark/numpylogoicon.svg" width = 64px alt="logo"></img>  | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> | <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img>|
+| Components | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> | <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img>|
 |:-----:|:-----:|:---------:|:---------:|:---------:|
-|**Fine Tuning**| | | | |
-| PPO | |:x:|:x:|:x:|
-| DPO | |:x:|:x:|:x:|
-| LoRA | |:x:|:x:|:x:|
-|**Attention Modules**| | | | |
-| Sliding Window Attention | |:x:|:x:|:x:|
-|**Search Algorithm**| | | | |
-| Monte Carlo Tree Search | |:x:|:x:|:x:|
+|**Fine Tuning**| | | |
+| PPO | |:x:|:x:|
+| DPO | |:x:|:x:|
+| LoRA | |:x:|:x:|
+|**Attention Modules**| | | |
+| Sliding Window Attention | |:x:|:x:|
+|**Search Algorithm**| | | |
+| Monte Carlo Tree Search | |:x:|:x:|
 
 
 ## Todo
