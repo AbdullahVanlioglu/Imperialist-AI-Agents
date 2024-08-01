@@ -27,13 +27,13 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 
 | Components | :-: | <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img> | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> |
 |:-----:|:-----:|:---------:|:---------:|
-|**Fine Tuning**|:-----:|:-----:|:-----:|
+|**Fine Tuning**| | | |
 | PPO | |:x:|:x:|
 | DPO | |:x:|:x:|
 | LoRA | |:x:|:x:|
-|**Attention Modules**|:-:|:-:|:-:|
+|**Attention Modules**| | | |
 | Sliding Window Attention | |:x:|:x:|
-|**Search Algorithm**|:-:|:-:|:-:|
+|**Search Algorithm**| | | |
 | Monte Carlo Tree Search | |:x:|:x:|
 
 
