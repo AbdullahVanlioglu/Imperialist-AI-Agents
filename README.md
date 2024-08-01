@@ -17,14 +17,15 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 |  Decision Transformer  |:x:|:heavy_check_mark:|
 |  Q-Transformer  |:x:|:x:|
 |  Mamba  |:x:|:x:|
-|  Multimodal  |:x:|:x:|
+|  VQ-VAE  |:x:|:x:|
+|  Diffusion Transformer  |:x:|:x:|
 |  Imperialist AI Agent  |:x:|:x:|
 
 
 
 ### **Components**
 
-|| Components |  <img src="https://raw.githubusercontent.com/numpy/numpy/main/branding/logo/logomark/numpylogoicon.svg" width = 64px alt="logo"></img>  | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> | <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img>|
+| Components |  <img src="https://raw.githubusercontent.com/numpy/numpy/main/branding/logo/logomark/numpylogoicon.svg" width = 64px alt="logo"></img>  | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> | <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img>|
 |:-----:|:-----:|:---------:|:---------:|:---------:|
 |**Fine Tuning**| | | | |
 ||  PPO  |:x:|:x:|:x:|
@@ -42,5 +43,5 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 - [ ] Q-Transformer
 - [ ] Mamba
 - [ ] RLHF (PPO & DPO)
-- [ ] Jax version of the algorithms [Optional]
+- [ ] Jax version of the algorithms
 - [ ] And Final Goal: Imperialist AI Agent
