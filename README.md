@@ -19,7 +19,6 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 |  Mamba  |:x:|:x:|
 |  VQ-VAE  |:x:|:x:|
 |  Diffusion Transformer  |:x:|:x:|
-|  Imperialist AI Agent  |:x:|:x:|
 
 
 
