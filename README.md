@@ -28,11 +28,11 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | Components |  <img src="https://raw.githubusercontent.com/numpy/numpy/main/branding/logo/logomark/numpylogoicon.svg" width = 64px alt="logo"></img>  | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> | <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img>|
 |:-----:|:-----:|:---------:|:---------:|:---------:|
 |**Fine Tuning**| | | | |
-||  PPO  |:x:|:x:|:x:|
-||  DPO  |:x:|:x:|:x:|
-||  LoRA  |:x:|:x:|:x:|
+|  PPO  |:x:|:x:|:x:|
+|  DPO  |:x:|:x:|:x:|
+|  LoRA  |:x:|:x:|:x:|
 |**Attention Modules**| | | | |
-||  Sliding Window Attention  |:x:|:x:|:x:|
+|  Sliding Window Attention  |:x:|:x:|:x:|
 
 
 ## Todo
