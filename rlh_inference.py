@@ -27,3 +27,12 @@ tokenizer = AutoTokenizer.from_pretrained(config.model_name)
 tokenizer.pad_token = tokenizer.eos_token
 
 ppo_trainer = PPOTrainer(config, model, ref_model, tokenizer, dataset=dataset, data_collator=collator)
+
+sentiment_pipe = pipeline("sentiment-analysis", model="Lvwerra/distilbert-imdb", device=device)
+
+sent_kwargs = {"return_all_scores": True, "function_to_apply": "none", "batch_size": 16}
+text = "this movie was really bad!!"
+print(sentiment_pipe(text, **sent_kwargs))
+
+text = "this movie was really good!!"
+print(sentiment_pipe(text, **sent_kwargs)) # [{'label': 'NEGATIVE', 'score': -2.335047960281372}, {'label': 'POSITIVE', 'score': 2.557039737701416}]
