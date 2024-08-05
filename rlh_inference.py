@@ -8,12 +8,26 @@ from transformers import pipeline, AutoTokenizer, AutoModel, AutoModelForCausalL
 from trl.core import LengthSampler
 
 
-wandb.init()
+def build_dataset(config, dataset_name="imdb", input_min_text_length=2, input_max_text_length=8):
+    tokenizer = AutoTokenizer.from_pretrained(config.model_name)
+    tokenizer.pad_token = tokenizer.eos_token
 
-dataset = load_dataset("imdb", split="train")
+    ds = load_dataset(dataset_name, split="train")
+    ds = ds.rename_columns({"text": "review"})
 
-tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-uncased")
-model = AutoModel.from_pretrained("google-bert/bert-base-uncased")
+    ds = ds.filter(lambda x: len(x["review"]) > 200, batched=False)
+
+    input_size = LengthSampler(input_min_text_length, input_max_text_length)
+
+    def tokenize(sample):
+        # From each review just keep the first `input_size` tokens, this represents the prompt used to generate the response
+        sample["input_ids"] = tokenizer.encode(sample["review"])[: input_size()]
+        sample["query"] = tokenizer.decode(sample["input_ids"])
+        return sample
+
+    ds = ds.map(tokenize, batched=False)
+    ds.set_format(type="torch")
+    return ds
 
 
 def collator(data):
@@ -21,10 +35,16 @@ def collator(data):
 
 
 if __name__ == '__main__':
+	device = 0 if torch.cuda.is_available() else "cpu"
+
 	config = PPOConfig(
 		model_name="lvwerra/gpt2-imdb",
 		learning_rate=1.41e-5,
 		log_with="wandb")
+	
+	wandb.init()
+
+	dataset = build_dataset(config)
 
 	model = AutoModelForCausalLMWithValueHead.from_pretrained(config.model_name)
 	ref_model = AutoModelForCausalLMWithValueHead.from_pretrained(config.model_name)
@@ -33,7 +53,7 @@ if __name__ == '__main__':
 	tokenizer = AutoTokenizer.from_pretrained(config.model_name)
 	tokenizer.pad_token = tokenizer.eos_token
 
-	ppo_trainer = PPOTrainer(config, model, ref_model, tokenizer, dataset=dataset, data_collator=collator)
+	ppo_trainer = PPOTrainer(config, model, ref_model, tokenizer, dataset=dataset, data_collator=collator)	
 
 	sentiment_pipe = pipeline("sentiment-analysis", model="lvwerra/distilbert-imdb", device=device)
 
