@@ -2,9 +2,9 @@ import torch
 import wandb
 import tqdm
 
-from trl import PPOTrainer, PPOConfig
+from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead
 from datasets import load_dataset
-from transformers import pipeline, AutoTokenizer, AutoModel, AutoModelForCausalLMWithValueHead
+from transformers import pipeline, AutoTokenizer, AutoModel
 from trl.core import LengthSampler
 
 
@@ -77,19 +77,22 @@ if __name__ == '__main__':
 		}
 	
 	for epoch, batch in tqdm(enumerate(ppo_trainer.dataloader)):
-		query_tensors = batch["input_ids"]
+        query_tensors = batch["input_ids"]
 
-		response_tensors = []
-		for query in query_tensors:
-			gen_len = output_length_sampler()
-			response_generation_kwargs["max_new_tokens"] = gen_len
-			response = ppo_trainer.generate(query, **response_generation_kwargs)
-			response_tensors.append(response.squeeze()[-gen_len:])
-		batch["response"] = [tokenizer.decode(r.squeeze()) for r in response_tensors]
-
-		texts = [q + r for q,r in zip(batch["query"], batch["response"])]
-		pipe_outputs = sentiment_pipe(texts, **sent_kwargs)
-
+        response_tensors = []
+        for query in query_tensors:
+            gen_len = output_length_sampler()
+            response_generation_kwargs["max_new_tokens"] = gen_len
+            response = ppo_trainer.generate(query, **response_generation_kwargs)
+            response_tensors.append(response.squeeze()[-gen_len:])
+        batch["response"] = [tokenizer.decode(r.squeeze()) for r in response_tensors]
+        
+		texts = [q + r for q, r in zip(batch["query"], batch["response"])]
+        
+        pipe_outputs = sentiment_pipe(texts, **sent_kwargs)
+        
 		rewards = [torch.tensor(output[1]["score"]) for output in pipe_outputs]
-
+        
 		stats = ppo_trainer.step(query_tensors, response_tensors, rewards)
+        
+		ppo_trainer.log_stats(stats, batch, rewards)
