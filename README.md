@@ -32,6 +32,8 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | LoRA |:x:|:x:|
 |**Attention Modules**| | |
 | Sliding Window Attention |:x:|:x:|
+|**Encoders**| | |
+| VAE |:x:|:x:|
 |**Search Algorithm**| | |
 | Monte Carlo Tree Search |:x:|:x:|
 

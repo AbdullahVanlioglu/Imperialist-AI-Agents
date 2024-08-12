@@ -1,6 +1,6 @@
 import torch
 import wandb
-import tqdm
+from tqdm import tqdm
 
 from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead
 from datasets import load_dataset
@@ -9,29 +9,29 @@ from trl.core import LengthSampler
 
 
 def build_dataset(config, dataset_name="imdb", input_min_text_length=2, input_max_text_length=8):
-    tokenizer = AutoTokenizer.from_pretrained(config.model_name)
-    tokenizer.pad_token = tokenizer.eos_token
+	tokenizer = AutoTokenizer.from_pretrained(config.model_name)
+	tokenizer.pad_token = tokenizer.eos_token
 
-    ds = load_dataset(dataset_name, split="train")
-    ds = ds.rename_columns({"text": "review"})
+	ds = load_dataset(dataset_name, split="train")
+	ds = ds.rename_columns({"text": "review"})
 
-    ds = ds.filter(lambda x: len(x["review"]) > 200, batched=False)
+	ds = ds.filter(lambda x: len(x["review"]) > 200, batched=False)
 
-    input_size = LengthSampler(input_min_text_length, input_max_text_length)
+	input_size = LengthSampler(input_min_text_length, input_max_text_length)
 
-    def tokenize(sample):
-        # From each review just keep the first `input_size` tokens, this represents the prompt used to generate the response
-        sample["input_ids"] = tokenizer.encode(sample["review"])[: input_size()]
-        sample["query"] = tokenizer.decode(sample["input_ids"])
-        return sample
+	def tokenize(sample):
+		# From each review just keep the first `input_size` tokens, this represents the prompt used to generate the response
+		sample["input_ids"] = tokenizer.encode(sample["review"])[: input_size()]
+		sample["query"] = tokenizer.decode(sample["input_ids"])
+		return sample
 
-    ds = ds.map(tokenize, batched=False)
-    ds.set_format(type="torch")
-    return ds
+	ds = ds.map(tokenize, batched=False)
+	ds.set_format(type="torch")
+	return ds
 
 
 def collator(data):
-    return dict((key, [d[key] for d in data]) for key in data[0])
+	return dict((key, [d[key] for d in data]) for key in data[0])
 
 
 if __name__ == '__main__':
@@ -77,22 +77,26 @@ if __name__ == '__main__':
 		}
 	
 	for epoch, batch in tqdm(enumerate(ppo_trainer.dataloader)):
-        query_tensors = batch["input_ids"]
+		query_tensors = batch["input_ids"]
 
-        response_tensors = []
-        for query in query_tensors:
-            gen_len = output_length_sampler()
-            response_generation_kwargs["max_new_tokens"] = gen_len
-            response = ppo_trainer.generate(query, **response_generation_kwargs)
-            response_tensors.append(response.squeeze()[-gen_len:])
-        batch["response"] = [tokenizer.decode(r.squeeze()) for r in response_tensors]
-        
+		response_tensors = []
+		for query in query_tensors:
+			gen_len = output_length_sampler()
+			response_generation_kwargs["max_new_tokens"] = gen_len
+			response = ppo_trainer.generate(query, **response_generation_kwargs)
+			response_tensors.append(response.squeeze()[-gen_len:])
+			
+		batch["response"] = [tokenizer.decode(r.squeeze()) for r in response_tensors]
+		
 		texts = [q + r for q, r in zip(batch["query"], batch["response"])]
-        
-        pipe_outputs = sentiment_pipe(texts, **sent_kwargs)
-        
+		
+		pipe_outputs = sentiment_pipe(texts, **sent_kwargs)
+		
 		rewards = [torch.tensor(output[1]["score"]) for output in pipe_outputs]
-        
+		
 		stats = ppo_trainer.step(query_tensors, response_tensors, rewards)
-        
+		
 		ppo_trainer.log_stats(stats, batch, rewards)
+
+	model.save_pretrained("gpt2-imdb-pos-v2", push_to_hub=False)
+	tokenizer.save_pretrained("gpt2-imdb-pos-v2", push_to_hub=False)
