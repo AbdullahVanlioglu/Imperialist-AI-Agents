@@ -72,3 +72,4 @@ class VAE_Encoder(nn.Sequential):
                 x =  F.pad(x, (0, 1, 0, 1))
             x = module(x)
             
+        
