@@ -1,10 +1,15 @@
 import torch
+import math
 from torch import nn
 from torch.nn import functional as F
 
+class SelfAttention(nn.Module):
+    def __init__(self):
+        super().__init__()
+
 
 class VAE_ResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels: int, out_channels: int):
         super().__init__()
         self.groupnorm_1 = nn.GroupNorm(32, in_channels)
         self.conv_1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
@@ -31,6 +36,35 @@ class VAE_ResidualBlock(nn.Module):
 
         return x + self.residual_layer(residue)
 
+
+class VAE_AttentionBlock(nn.Module):
+    def __init__(self, channels: int):
+        super().__init__()
+        self.groupnorm = nn.GroupNorm(32, channels)
+        self.attention = SelfAttention(1, channels)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: (Batch_Size, Features, Height, Width)
+        residue = x
+
+        n, c, h, w = x.shape
+
+        x = x.view(n, c, h * w)
+
+        # (Batch_Size, Features, Height * Width) -> (Batch_Size, Height * Width, Features)
+        x = x.transpose(-1, -2)
+
+        x = self.attention(x)
+
+        # (Batch_Size, Height * Width, Features) -> (Batch_Size, Features, Height * Width)
+        x = x.transpose(-1, -2)
+
+        # (Batch_Size, Height * Width, Features) -> (Batch_Size, Features, Height, Width)
+        x = x.view(n, c, h, w)
+
+        x += residue
+
+        return x
 
 
 
