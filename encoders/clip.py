@@ -12,7 +12,6 @@ class CLIPEmbedding(nn.Module):
     def forward(self, tokens):
         # (Batch_Size, Seq_Len) -> (Batch_Size, Seq_Len, Dim)
         x = self.token_embeddings(tokens)
-
         x += self.position_embeddings
 
         return x
@@ -23,7 +22,31 @@ class CLIPLayer(nn.Module):
         super().__init__()
 
         self.layernorm_1 = nn.LayerNorm(n_embd)
-        self.attention = 
+        self.attention = SelfAttention(n_head, n_embd)
+        self.layernorm_2 = nn.LayerNorm(n_embd)
+        self.linear_1 = nn.Linear(n_embd, 4 * n_embd)
+        self.linear_2 = nn.Linear(4 * n_embd, n_embd)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # (Batch_Size, Seq_Len, Dim)
+        residue = x
+
+        # Self Attention
+        x = self.layernorm_1(x)
+        x = self.attention(x, casual_mask=True)
+        x += residue
+
+        # Feedforward Layer
+        residue = x
+
+        x = self.layernorm_2(x)
+        x = self.linear_1(x)
+        x = x * torch.sigmoid(1.702 * x) # QuickGELU Activation Function
+        x = self.linear_2(x)
+        x += residue
+
+        return x
+
 
 
 class CLIP(nn.Module):
