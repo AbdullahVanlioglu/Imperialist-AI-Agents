@@ -19,6 +19,8 @@ class TimeEmbedding(nn.Module):
         return x 
 
 
+
+
 class Diffusion(nn.Module):
     def __init__(self):
         self.time_embedding = TimeEmbedding(320)
