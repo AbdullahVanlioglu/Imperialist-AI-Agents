@@ -63,7 +63,61 @@ class UNET_AttentionBlock(nn.Module):
 
         self.layernorm_1 = nn.LayerNorm(channels)
         self.attention_1 = SelfAttention(n_head, channels, in_proj_bias=False)
+        self.layernorm_2 = nn.LayerNorm(channels)
+        self.attention_2 = CrossAttention(n_head, channels, d_context, in_proj_bias=False)
+        self.layernorm_3 = nn.LayerNorm(channels)
+        self.linear_geglu_1 = nn.Linear(channels, 4 * channels * 2)
+        self.linear_geglu_2 = nn.Linear(4 * channels, channels)
 
+        self.conv_output = nn.Conv2d(channels, channels, kernel_size=1, padding=0)
+
+    def forward(self, x: torch.Tensor, context: torch.Tensor) -> torch.Tensor:
+        # x: (Batch_Size, Features, Height, Width)
+        # context: (Batch_Size, Seq_Len, Dim)
+
+        residue_long = x
+        
+        x = self.groupnorm(x)
+        x = self.conv_input(x)
+
+        n, c, h, w = x.shape
+
+        # (Batch_Size, Features, Height, Width) -> (Batch_Size, Features, Height * Width)
+        x = x.view((n, c, h*w))
+        # (Batch_Size, Features, Height * Width) -> (Batch_Size, Height * Width, Features)
+        x = x.transpose(-1, -2)
+
+        # Normalization + Self Attention with skip connection
+        residue_short = x
+        x = self.layernorm_1(x)
+        self.attention_1(x)
+        x += residue_short
+
+        residue_short = x
+
+        # Normalization + Cross Attention with skip connection
+        x = self.layernorm_2(x)
+        self.attention_2(x, context)
+        x += residue_short
+
+        residue_short = x
+
+        # Normalization + FF with GeGLU and skip connection
+
+        x = self.layernorm_3(x)
+
+        x, gate = self.linear_geglu_1(x).chunk(2, dim=-1)
+        x = x * F.gelu(gate)
+
+        x = self.linear_geglu_2(x)
+
+        x += residue_short
+        
+        # (Batch_Size, Height * Width, Features) -> (Batch_Size, Features, Height * Width)
+        x = x.transpose(-1, -2)
+        x = x.view((n, c, h, w))
+
+        return self.conv_output(x) + residue_long
 
     
 class UpSample(nn.Module):
@@ -94,7 +148,7 @@ class UNET(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.encoders = nn.Module([
+        self.encoders = nn.ModuleList([
             # (Batch_Size, 4, Height/8, Width/8) -> (Batch_Size, 320, Height/8, Width/8)
             SwitchSequential(nn.Conv2d(4, 320, kernel_size=3, padding=1)),
 
