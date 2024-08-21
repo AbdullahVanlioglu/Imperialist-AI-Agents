@@ -1,4 +1,5 @@
 import torch
+import math
 from torch import nn
 from torch.nn import functional as F
 
@@ -55,7 +56,7 @@ class SelfAttention(nn.Module):
 
 class CrossAttention(nn.Module):
     def __init__(self, n_heads: int, d_embed: int, 
-                 d_cross: int ,
+                 d_cross: int,
                  in_proj_bias: bool = True,
                  out_proj_bias: bool = True):
         super().__init__()
@@ -67,4 +68,30 @@ class CrossAttention(nn.Module):
         self.d_head = d_embed//n_heads
 
     def forward(self, x, y):
-        # x: 
+        # x: (latent): (Batch_Size, Seq_len_Q, Dim_Q)
+        # y: (context): (Batch_Size, Seq_Len_KV, Dim_KV) = (Batch_Size, 77, 768)
+
+        input_shape = x.shape
+        batch_size, sequence_length, d_embed = input_shape
+        
+        interim_shape = (batch_size, -1, self.n_heads, self.d_head)
+
+        # Multiply query by Wq
+        q = self.q_proj(x)
+        k = self.k_proj(y)
+        v = self.v_proj(y)
+
+        q = q.view(interim_shape).transpose(1, 2)
+        k = k.view(interim_shape).transpose(1, 2)
+        v = v.view(interim_shape).transpose(1, 2)
+
+        weight = q @ k.transpose(-1, -2)
+        weight /= math.sqrt(self.d_head)
+        weight = F.softmax(weight, dim=-1)
+
+        output = weight @ v
+        output = output.transpose(1, 2).continious() 
+        output = output.view(input_shape)
+        output= self.out_proj(output)
+
+        return output
