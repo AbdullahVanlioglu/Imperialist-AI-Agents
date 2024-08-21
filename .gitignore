@@ -8,3 +8,6 @@ wandb
 *.egg-info
 *.pkl
 *.log
+*.json
+*.ckpt
+*.txt
