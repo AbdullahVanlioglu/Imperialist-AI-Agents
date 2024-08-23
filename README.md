@@ -34,6 +34,7 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | Sliding Window Attention |:x:|:x:|
 |**Encoders**| | |
 | VAE |:x:|:heavy_check_mark:|
+| CLIP |:x:|:heavy_check_mark:|
 |**Search Algorithm**| | |
 | Monte Carlo Tree Search |:x:|:x:|
 
