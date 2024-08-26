@@ -44,8 +44,18 @@ def generate(prompt: str, uncond_prompt: str, input_image=None, strength: float=
             uncond_context = clip(uncond_tokens)
 
             # (2, Seq_Len, Dim) = (2, 77, 768)
-            context = torch.cat([cond_context, uncond_context])
+            context = torch.cat([cond_context, uncond_context]) 
+        else:
+            tokens = tokenizer.batch_encode_plus([prompt], padding="max_length", max_length=77).input_ids
+            tokens = torch.tensor(tokens, dtype=torch.long, device=device)
+            # (1, 77, 768)
+            context = clip(tokens)
 
+        if sampler_name == "ddpm":
+            sampler = DDPMSampler(generator)
+            sampler.set_inference_steps(n_inference_steps)
+        else:
+            raise ValueError("Unknown sampler {sampler_name}")
 
 
 
