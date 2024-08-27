@@ -80,6 +80,12 @@ def generate(prompt: str, uncond_prompt: str, input_image=None, strength: float=
             sampler.set_strength(strength=strength)
             latents = sampler.add_noise(latents, sampler.timesteps[0])
 
+            to_idle(encoder)
+
+        else:
+            # text-to-image, start with random noise N(0,I)
+            latents = torch.randn(latents_shape, generator=generator, deivce=device)
+
             
 
 
