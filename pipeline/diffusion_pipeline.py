@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from tqdm import tqdm
-from ddpm import DDPMSampler
+from scheduler.ddpm import DDPMSampler
 
 WIDTH = 512
 HEIGHT = 512
