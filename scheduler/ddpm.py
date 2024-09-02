@@ -8,6 +8,7 @@ class DDPMSampler:
         beta_end: float = 0.0120
         ):
 
+
         self.betas = torch.linspace(beta_start**0.5, beta_end**0.5, num_training_steps, dtype=torch.float32)**2
         self.alphas = 1.0 - self.betas
         self.alpha_cumprod = torch.cumprod(self.alphas, 0) # [alpha_0, alpha_0 * alpha_1, alpha_0 * alpha_1 * alpha_2, ...]
@@ -17,15 +18,18 @@ class DDPMSampler:
         self.num_training_steps = num_training_steps
         self.timesteps = torch.from_numpy(np.arange(0, num_training_steps)[::-1].copy())
 
+
     def set_inference_steps(self, num_inference_steps: int = 50):
         self.num_inference_steps = num_inference_steps
-        step_ratio = self.num_training_steps // self.num_inference_steps
-        timesteps = (np.arange(0, num_inference_steps) * step_ratio).round()[::-1].copy().astype(np.int64)
+        step_ratio = self.num_training_steps // self.num_inference_steps # 1000/50 = 20
+        timesteps = (np.arange(0, num_inference_steps) * step_ratio).round()[::-1].copy().astype(np.int64) # [49*20, 48*20, 47*20, ...]
         self.timesteps = torch.from_numpy(timesteps)
+
 
     def _get_previous_timestep(self, timestep:int) -> int:
         prev_t = timestep - (self.num_training_steps // self.num_inference_steps)
         return prev_t
+
 
     def _get_variance(self, timestep: int) -> torch.Tensor:
         prev_t = self._get_previous_timestep(timestep)
@@ -37,8 +41,14 @@ class DDPMSampler:
         # Computed using formula (7) of the DDPM paper
         variance = (1 - alpha_prot_t_prev) * current_beta_t / (1 - alpha_prot_t)
         variance = torch.clamp(variance, min=1e-20)
-
         return variance
+
+
+    def set_strength(self, strength: int = 1):
+        start_step = self.num_inference_steps - int(self.num_inference_steps * strength)
+        self.timesteps = self.timesteps[start_step:] # [49*20, 48*20, 47*20, ...][10:]
+        self.start_step = start_step
+
 
     def step(self, timestep: int, latents: torch.Tensor, model_output: torch.Tensor):
         t = timestep
