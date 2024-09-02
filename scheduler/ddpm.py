@@ -27,6 +27,18 @@ class DDPMSampler:
         prev_t = timestep - (self.num_training_steps // self.num_inference_steps)
         return prev_t
 
+    def _get_variance(self, timestep: int) -> torch.Tensor:
+        prev_t = self._get_previous_timestep(timestep)
+
+        alpha_prot_t = self.alpha_cumprod[timestep]
+        alpha_prot_t_prev = self.alpha_cumprod[prev_t] if prev_t >= 0 else self.one
+        current_beta_t = 1 - alpha_prot_t / alpha_prot_t_prev
+
+        # Computed using formula (7) of the DDPM paper
+        variance = (1 - alpha_prot_t_prev) * current_beta_t / (1 - alpha_prot_t)
+        variance = torch.clamp(variance, min=1e-20)
+
+        return variance
 
     def step(self, timestep: int, latents: torch.Tensor, model_output: torch.Tensor):
         t = timestep
@@ -48,6 +60,19 @@ class DDPMSampler:
 
         # Compute the predicted previous sample mean
         pred_prev_sample = pred_original_sample_coeff * pred_original_sample + current_sample_coeff * latents
+
+        variance = 0
+
+        if t > 0:
+            device = model_output.device
+            noise = torch.randn(model_output.shape, generator=self.generator, device=device, dtype=model_output.dtype)
+            variance = (self._get_variance(t) ** 0.5) * noise
+
+        # N(0, 1) --> N(mu, sigma^2)
+        # X = mu + sigma * Z where Z ~ N(0, 1)
+        pred_prev_sample = pred_prev_sample + variance
+
+        return pred_prev_sample
 
 
     def add_noise(self, original_samples: torch.FloatTensor, timesteps: torch.IntTensor) -> torch.FloatTensor:
