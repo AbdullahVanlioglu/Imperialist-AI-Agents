@@ -78,8 +78,8 @@ class DDPMSampler:
             noise = torch.randn(model_output.shape, generator=self.generator, device=device, dtype=model_output.dtype)
             variance = (self._get_variance(t) ** 0.5) * noise
 
-        # N(0, 1) --> N(mu, sigma^2)
-        # X = mu + sigma * Z where Z ~ N(0, 1)
+        # sample from N(mu, sigma) = X can be obtained by X = mu + sigma * N(0, 1)
+        # the variable "variance" is already multiplied by the noise N(0, 1)
         pred_prev_sample = pred_prev_sample + variance
 
         return pred_prev_sample

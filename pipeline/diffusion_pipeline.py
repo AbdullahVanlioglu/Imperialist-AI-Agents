@@ -127,7 +127,7 @@ def generate(prompt: str, uncond_prompt: str, input_image=None, strength: float=
         to_idle(decoder)
 
         images = rescale(images, (-1, 1), (0, 255), clamp=True)
-        #(Batch_Size, Channel, Height, Width) -> (Batch_Size, Height, Width, Channel)
+        # (Batch_Size, Channel, Height, Width) -> (Batch_Size, Height, Width, Channel)
         images = images.permute(0 , 2, 3, 1)
         images = images.to("cpu", torch.uint8).numpy()
         return images[0]
