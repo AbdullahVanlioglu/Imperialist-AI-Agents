@@ -86,7 +86,7 @@ class DDPMSampler:
 
     def add_noise(self, original_samples: torch.FloatTensor, timesteps: torch.IntTensor) -> torch.FloatTensor:
         alpha_cumprod = self.alpha_cumprod.to(device=original_samples.device, dtype=original_samples)
-        timesteps = timesteps.tp(original_samples.device)
+        timesteps = timesteps.to(original_samples.device)
 
         sqrt_alpha_prod = alpha_cumprod[timesteps] ** 0.5
         sqrt_alpha_prod = sqrt_alpha_prod.flatten()
