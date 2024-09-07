@@ -1,6 +1,6 @@
 import torch
-from torch.nn import nn
-from torch.nn.functional import functional as F
+import torch.nn as nn
+from torch.nn import functional as F
 from attentions.attention import SelfAttention, CrossAttention
 
 class TimeEmbedding(nn.Module):
@@ -125,7 +125,7 @@ class UpSample(nn.Module):
         super().__init__()
         self.conv = nn.Conv2d(channels, channels, kernel_size=3, padding=1)
 
-    def forward(self, x: torch.absTensor) -> torch.Tensor:
+    def forward(self, x) -> torch.Tensor:
         # (Batch_Size, Features, Height, Width) -> (Batch_Size, Features, Height*2, Width*2)
         x = F.interpolate(x, scale_factor=2, mode="nearest")
         return self.conv(x)
