@@ -35,6 +35,8 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 |**Encoders**| | |
 | VAE |:x:|:heavy_check_mark:|
 | CLIP |:x:|:heavy_check_mark:|
+|**Schedulers**| | |
+| DDPM |:x:|:heavy_check_mark:|
 |**Search Algorithm**| | |
 | Monte Carlo Tree Search |:x:|:x:|
 
