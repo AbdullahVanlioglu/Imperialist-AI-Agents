@@ -26,4 +26,3 @@ def preload_models_from_standard_weights(ckpt_path, device):
         "diffusion": diffusion
     }
 
-
