@@ -12,13 +12,18 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 
 | Transformers |  <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img> | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> |
 |:-----:|:---------:|:---------:|
+|  Mamba  |:x:|:x:|
+|  VQ-VAE  |:x:|:x:|
+|**LLM Transformers**| | |
 |  LLaMa v2  |:x:|:heavy_check_mark:|
+|**Decision Transformers**| | |
 |  Behavior Clonning  |:x:|:heavy_check_mark:|
 |  Decision Transformer  |:x:|:heavy_check_mark:|
 |  Q-Transformer  |:x:|:x:|
-|  Mamba  |:x:|:x:|
-|  VQ-VAE  |:x:|:x:|
+|**Diffusion Transformers**| | |
 |  Diffusion Transformer  |:x:|:x:|
+|**Vision Language Transformers**| | |
+|  Qwen2-VL  |:x:|:x:|
 
 
 
@@ -39,15 +44,3 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | DDPM |:x:|:heavy_check_mark:|
 |**Search Algorithm**| | |
 | Monte Carlo Tree Search |:x:|:x:|
-
-
-## Todo
-
-- [x] LLAMA v2
-- [x] Behavior Clonning
-- [x] Decision Transformer
-- [ ] Q-Transformer
-- [ ] Mamba
-- [ ] RLHF (PPO & DPO)
-- [ ] Jax version of the algorithms
-- [ ] And Final Goal: Imperialist AI Agent
