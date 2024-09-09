@@ -20,10 +20,11 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 |  Decision Transformer  |:x:|:heavy_check_mark:|
 |  Q-Transformer  |:x:|:x:|
 |**Vision Transformers**| | |
-|  VIT  |:x:|:x:|
+|  ViT  |:x:|:x:|
+|  MaxViT  |:x:|:x:|
 |**Diffusion Transformers**| | |
-|  DIT  |:x:|:x:|
-|**Vision Language Transformers**| | |
+|  DiT  |:x:|:x:|
+|**Multimodal Transformers**| | |
 |  Qwen2-VL  |:x:|:x:|
 |**Other Specialized Transformers**| | |
 |  Mamba  |:x:|:x:|
