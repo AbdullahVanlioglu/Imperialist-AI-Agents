@@ -13,7 +13,6 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | Transformers |  <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img> | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> |
 |:-----:|:---------:|:---------:|
 |  Mamba  |:x:|:x:|
-|  VQ-VAE  |:x:|:x:|
 |**LLM Transformers**| | |
 |  LLaMa v2  |:x:|:heavy_check_mark:|
 |**Decision Transformers**| | |
@@ -38,6 +37,7 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 |**Attention Modules**| | |
 | Sliding Window Attention |:x:|:x:|
 |**Encoders**| | |
+| VQ-VAE |:x:|:x:|
 | VAE |:x:|:heavy_check_mark:|
 | CLIP |:x:|:heavy_check_mark:|
 |**Schedulers**| | |
