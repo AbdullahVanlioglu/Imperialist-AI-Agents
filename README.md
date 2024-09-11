@@ -35,7 +35,6 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | Diffusion Models | <img src="https://raw.githubusercontent.com/google/jax/main/images/jax_logo_250px.png" width = 64px alt="logo"></img> | <img src="https://pytorch.org/assets/images/pytorch-logo.png" width = 50px  height = 50px alt="logo"></img> |
 |:-----:|:---------:|:---------:|
 |**Image Generation**| | |
-|  DDPM  |:x:|:heavy_check_mark:|
 |  Stable Diffusion  |:x:|:heavy_check_mark:|
 |**Audio Generation**| | |
 |  AudioLDM  |:x:|:x:|
