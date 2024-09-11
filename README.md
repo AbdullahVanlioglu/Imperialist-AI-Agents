@@ -36,11 +36,11 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 |:-----:|:---------:|:---------:|
 |**Image Generation**| | |
 |  Stable Diffusion  |:x:|:heavy_check_mark:|
-|**Audio Generation**| | |
+|**Audio Generation** (Optional)| | |
 |  AudioLDM  |:x:|:x:|
 |**Video Generation**| | |
 |  Video Diffusion Models  |:x:|:x:|
-|**3D Generation**| | |
+|**3D Generation** (Optional)| | |
 |  DreamFusion  |:x:|:x:|
 
 
