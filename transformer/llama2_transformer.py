@@ -231,7 +231,7 @@ class EncoderBlock(nn.Module):
         out = h + self.feed_forward.forward(self.ffn_norm(h))
         return out
     
-class Transformer(nn.Module):
+class Llama2Transformer(nn.Module):
 
     def __init__(self, args: ModelArgs):
         super().__init__()

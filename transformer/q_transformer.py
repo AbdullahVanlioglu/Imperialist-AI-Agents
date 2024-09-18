@@ -32,7 +32,7 @@ class AttentionBlock(nn.Module):
 
 
     
-class Transformer(nn.Module):
+class QTransformer(nn.Module):
     def __init__(self,
                  vit: MaxViT,
                  args: ModelArgs,
