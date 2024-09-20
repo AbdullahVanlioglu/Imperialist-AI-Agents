@@ -243,9 +243,8 @@ class Llama2Transformer(nn.Module):
         self.n_layers = args.n_layers
         self.tok_embeddings = nn.Embedding(self.vocab_size, args.dim)
 
-        self.layers = nn.ModuleList()
-        for layer_id in range(args.n_layers):
-            self.layers.append(EncoderBlock(args))
+        self.layers = nn.ModuleList(
+            [EncoderBlock(args) for _ in range(args.n_layers)])
 
         self.norm = RMSNorm(args.dim, eps=args.norm_eps)
         self.output = nn.Linear(args.dim, self.vocab_size, bias=False)
