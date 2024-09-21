@@ -1,14 +1,29 @@
 import torch
 import math
 import torch.nn as nn
+from typing import Any, Dict, Optional
+
+class Attention(nn.Module):
+    def __init__(self,
+                 query_dim:int,
+                 cross_attention_dim:int,
+                 heads:int=8,
+                 ):
+        super().__init__()
+
+        self.query_dim = query_dim
+        self.cross_attention_dim = cross_attention_dim
+        self.heads = heads
+
 
 class TransformerBlock(nn.Module):
     def __init__(self,
                  inner_dim:int,
                  num_attention_heads:int,
                  attention_head_dim:int,
-                 dropout:float=0.0,
                  activation_fn:str,
+                 dropout:float=0.0,
+                 norm_eps:float=1e-6,
                  ):
         super().__init__()
         self.inner_dim = inner_dim
@@ -17,6 +32,13 @@ class TransformerBlock(nn.Module):
         self.dropout = dropout
         self.activation_fn = activation_fn
 
+        self.norm1 = nn.LayerNorm(inner_dim, eps=norm_eps)
+
+        self.attn1 = Attention()
+
+    def forward(self, x):
+
+
 class PatchEmbed(nn.Module):
     def __init__(self,
                  height:int,
@@ -24,6 +46,7 @@ class PatchEmbed(nn.Module):
                  patch_size:int,
                  layer_norm:bool=False,
                  flatten_output:bool=True,
+                 norm_type:str="layer_norm",
                  ):
         super().__init__()
 
@@ -33,6 +56,8 @@ class PatchEmbed(nn.Module):
         num_patches = (height // patch_size) * (width // patch_size)
 
     def forward(self, latent):
+
+        
 
         
 
@@ -58,7 +83,11 @@ class DiffusionTransformer2D(nn.Module):
             flatten_output=flatten_output: bool,
         )
 
-    def forward(self, latent):
+    def forward(self, 
+                latent:torch.Tensor,
+                timestep: Optional[torch.LongTensor]=None,
+                class_labels: Optional[torch.Tensor]=None,
+                ):
 
         self.transformer_blocks = nn.ModuleList([
             TransformerBlock(
