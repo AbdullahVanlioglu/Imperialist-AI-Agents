@@ -56,7 +56,7 @@ class PatchEmbed(nn.Module):
         num_patches = (height // patch_size) * (width // patch_size)
 
     def forward(self, latent):
-
+        raise NotImplementedError
         
 
         
