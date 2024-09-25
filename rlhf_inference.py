@@ -49,7 +49,6 @@ if __name__ == '__main__':
 	model = AutoModelForCausalLMWithValueHead.from_pretrained(config.model_name)
 	ref_model = AutoModelForCausalLMWithValueHead.from_pretrained(config.model_name)
 
-
 	tokenizer = AutoTokenizer.from_pretrained(config.model_name)
 	tokenizer.pad_token = tokenizer.eos_token
 
