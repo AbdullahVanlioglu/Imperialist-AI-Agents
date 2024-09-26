@@ -14,6 +14,7 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 |:-----:|:---------:|:---------:|
 |**LLM Transformers**| | |
 |  Mistral  |:x:|:x:|
+|  Llama v3.2  |:x:|:heavy_check_mark:|
 |  Llama v2  |:x:|:heavy_check_mark:|
 |**Decision Transformers**| | |
 |  Behavior Clonning  |:x:|:heavy_check_mark:|
