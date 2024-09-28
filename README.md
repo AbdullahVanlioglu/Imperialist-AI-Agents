@@ -53,6 +53,7 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | PPO |:x:|:x:|
 | DPO |:x:|:x:|
 | LoRA |:x:|:x:|
+| Reinforce Style Optimization |:x:|:x:|
 |**Attention Modules**| | |
 | Sliding Window Attention |:x:|:x:|
 |**Encoders**| | |
@@ -61,5 +62,6 @@ This repository contains Imperialist AI Agents. Agents that can hit with a highe
 | CLIP |:x:|:heavy_check_mark:|
 |**Schedulers**| | |
 | DDPM |:x:|:heavy_check_mark:|
-|**Search Algorithm**| | |
+|**Search Algorithms**| | |
 | Monte Carlo Tree Search |:x:|:x:|
+| Reverse Curriculum Reinforcement Learning |:x:|:x:|

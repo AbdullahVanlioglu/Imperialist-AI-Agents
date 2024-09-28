@@ -11,3 +11,4 @@ wandb/
 *.json
 *.ckpt
 *.txt
+*.log
