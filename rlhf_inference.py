@@ -82,7 +82,7 @@ if __name__ == '__main__':
 		for query in query_tensors:
 			gen_len = output_length_sampler()
 			response_generation_kwargs["max_new_tokens"] = gen_len
-			response = ppo_trainer.generate(query, **response_generation_kwargs)
+			response = ppo_trainer.generate(query, **response_generation_kwargs) # (query + response) tokens
 			response_tensors.append(response.squeeze()[-gen_len:])
 			
 		batch["response"] = [tokenizer.decode(r.squeeze()) for r in response_tensors]
@@ -91,6 +91,7 @@ if __name__ == '__main__':
 		
 		pipe_outputs = sentiment_pipe(texts, **sent_kwargs)
 		
+		# The reward for the each text is the score (logit) corresponding to the POSITIVE class.
 		rewards = [torch.tensor(output[1]["score"]) for output in pipe_outputs]
 		
 		stats = ppo_trainer.step(query_tensors, response_tensors, rewards)
