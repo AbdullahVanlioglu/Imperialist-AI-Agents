@@ -8,7 +8,7 @@ from typing import Optional, List
 from sentencepiece import SentencePieceProcessor
 from tqdm import tqdm
 
-from transformer.llama_transformer import ModelArgs, Transformer
+from transformer import ModelArgs, Llama2Transformer
 
 class LLaMA:
 
@@ -47,7 +47,7 @@ class LLaMA:
         else:
             torch.set_default_tensor_type(torch.BFloat16Tensor)
         
-        model = Transformer(model_args).to(device)
+        model = Llama2Transformer(model_args).to(device)
 
         if load_model:
             # The only unmatched key in the checkpoint is rope.freqs. Remove it
