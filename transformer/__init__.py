@@ -1,4 +1,4 @@
-from .llama2_transformer import Llama2Transformer
+from .llama2_transformer import Llama2Args, Llama2Transformer
 from .behavior_clonning import MLBehaviorClonning
 from .decision_transformer import DecisionTransformer
 from .diffusion_transformer import DiT

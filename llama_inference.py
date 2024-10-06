@@ -8,11 +8,11 @@ from typing import Optional, List
 from sentencepiece import SentencePieceProcessor
 from tqdm import tqdm
 
-from transformer import ModelArgs, Llama2Transformer
+from transformer import Llama2Args, Llama2Transformer
 
 class LLaMA:
 
-    def __init__(self, model: Transformer, tokenizer: SentencePieceProcessor, model_args: ModelArgs):
+    def __init__(self, model: Llama2Transformer, tokenizer: SentencePieceProcessor, model_args: Llamav2Args):
         self.model = model
         self.tokenizer = tokenizer
         self.args = model_args
@@ -31,7 +31,7 @@ class LLaMA:
         with open(Path(checkpoints_dir) / "params.json", "r") as f:
             params = json.loads(f.read())
 
-        model_args: ModelArgs = ModelArgs(
+        model_args: Llama2Args = Llama2Args(
             max_seq_len=max_seq_len,
             max_batch_size=max_batch_size,
             device=device,

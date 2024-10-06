@@ -8,7 +8,7 @@ from typing import Optional
 
 
 @dataclass
-class ModelArgs:
+class Llama2Args:
     dim: int = 4096
     n_layers: int = 32
     n_heads: int = 32 # Number of heads for the queries
@@ -98,7 +98,7 @@ def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
 
 
 class SelfAttention(nn.Module):
-    def __init__(self, args: ModelArgs):
+    def __init__(self, args: Llama2Args):
         super().__init__()
 
         # Indicates the number of heads for the Keys and Values
@@ -178,7 +178,7 @@ class SelfAttention(nn.Module):
 class FeedForward(nn.Module):
     def __init__(
         self,
-        args: ModelArgs
+        args: Llama2Args
     ):
         super().__init__()
 
@@ -207,7 +207,7 @@ class FeedForward(nn.Module):
 
 class EncoderBlock(nn.Module):
 
-    def __init__(self, args: ModelArgs):
+    def __init__(self, args: Llama2Args):
         super().__init__()
 
         self.n_heads = args.n_heads
@@ -233,7 +233,7 @@ class EncoderBlock(nn.Module):
     
 class Llama2Transformer(nn.Module):
 
-    def __init__(self, args: ModelArgs):
+    def __init__(self, args: Llama2Args):
         super().__init__()
 
         assert args.vocab_size != -1, "Vocab size must be set"
