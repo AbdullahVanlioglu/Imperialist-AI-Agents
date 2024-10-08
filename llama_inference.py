@@ -12,7 +12,7 @@ from transformer import Llama2Args, Llama2Transformer
 
 class LLaMA:
 
-    def __init__(self, model: Llama2Transformer, tokenizer: SentencePieceProcessor, model_args: Llamav2Args):
+    def __init__(self, model: Llama2Transformer, tokenizer: SentencePieceProcessor, model_args: Llama2Args):
         self.model = model
         self.tokenizer = tokenizer
         self.args = model_args
